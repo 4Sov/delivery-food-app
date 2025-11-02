@@ -144,29 +144,26 @@ export default function Sidebar({
   };
 
   const getMenuItems = (): MenuItem[] => {
-    // Dashboard and POS always at the top
-    const topItems: MenuItem[] = [
-      { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { id: "pos", label: "POS", icon: Store },
-    ];
-
     const commonItems: MenuItem[] = [
       { id: "coupon", label: "Coupon", icon: Gift },
     ];
 
     const adminOnlyItems: MenuItem[] = [
+      { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
       { id: "vendors", label: "Vendors", icon: Users },
     ];
 
     const vendorOnlyItems: MenuItem[] = [
+      { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { id: "pos", label: "POS", icon: Store },
       { id: "categories", label: "Categories", icon: Package },
       { id: "items", label: "Items", icon: Utensils },
     ];
 
     if (userRole === "admin") {
-      return [...topItems, ...commonItems, ...adminOnlyItems];
+      return [...adminOnlyItems, ...commonItems];
     } else {
-      return [...topItems, ...commonItems, ...vendorOnlyItems];
+      return [...vendorOnlyItems, ...commonItems];
     }
   };
   return (
@@ -225,107 +222,81 @@ export default function Sidebar({
 
         <nav className="p-4">
           <ul className="space-y-1">
-            {/* Dashboard and POS at the top */}
-            {getMenuItems()
-              .slice(0, 2)
-              .map((item) => (
-                <li key={item.id}>
-                  <button
-                    onClick={() => handleSectionChange(item.id)}
-                    className={`w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
-                      activeSection === item.id
-                        ? "bg-red-50 text-red-700 border-r-2 border-red-500 shadow-sm"
-                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                    }`}
-                  >
-                    <item.icon className="w-4 h-4 mr-3 flex-shrink-0" />
-                    <span className="flex-1 text-left">{item.label}</span>
-                    {item.badge && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        {item.badge}
-                      </span>
-                    )}
-                  </button>
-                </li>
-              ))}
+            {/* Render all menu items */}
+            {getMenuItems().map((item) => (
+              <li key={item.id}>
+                <button
+                  onClick={() => handleSectionChange(item.id)}
+                  className={`w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    activeSection === item.id
+                      ? "bg-red-50 text-red-700 border-r-2 border-red-500 shadow-sm"
+                      : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+                >
+                  <item.icon className="w-4 h-4 mr-3 flex-shrink-0" />
+                  <span className="flex-1 text-left">{item.label}</span>
+                  {item.badge && (
+                    <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      {item.badge}
+                    </span>
+                  )}
+                </button>
+              </li>
+            ))}
 
-            {/* Orders Dropdown */}
-            <li>
-              <button
-                onClick={handleOrdersToggle}
-                className={`w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
-                  activeSection.includes("orders")
-                    ? "bg-red-50 text-red-700 shadow-sm"
-                    : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                }`}
-              >
-                <ShoppingCart className="w-4 h-4 mr-3 flex-shrink-0" />
-                <span className="flex-1 text-left">Order</span>
-                {isOrdersExpanded ? (
-                  <ChevronDown className="w-4 h-4 flex-shrink-0" />
-                ) : (
-                  <ChevronRight className="w-4 h-4 flex-shrink-0" />
-                )}
-              </button>
+            {/* Orders Dropdown - Vendor Only */}
+            {userRole === "vendor" && (
+              <li>
+                <button
+                  onClick={handleOrdersToggle}
+                  className={`w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
+                    activeSection.includes("orders")
+                      ? "bg-red-50 text-red-700 shadow-sm"
+                      : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                  }`}
+                >
+                  <ShoppingCart className="w-4 h-4 mr-3 flex-shrink-0" />
+                  <span className="flex-1 text-left">Order</span>
+                  {isOrdersExpanded ? (
+                    <ChevronDown className="w-4 h-4 flex-shrink-0" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                  )}
+                </button>
 
-              {isOrdersExpanded && (
-                <ul className="mt-2 ml-4 space-y-1">
-                  {orderSubItems.map((item) => {
-                    const IconComponent = item.icon;
-                    return (
-                      <li key={item.id}>
-                        <button
-                          onClick={() => handleSectionChange(item.id)}
-                          className={`w-full flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
-                            activeSection === item.id
-                              ? "bg-red-50 text-red-700 border-r-2 border-red-500 shadow-sm"
-                              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                          }`}
-                        >
-                          {IconComponent && (
-                            <IconComponent className="w-3 h-3 mr-2 flex-shrink-0" />
-                          )}
-                          <span className="flex-1 text-left text-xs">
-                            {item.label}
-                          </span>
-                          <span
-                            className={`text-xs font-medium px-2 py-0.5 rounded-full ${item.color} bg-opacity-10`}
+                {isOrdersExpanded && (
+                  <ul className="mt-2 ml-4 space-y-1">
+                    {orderSubItems.map((item) => {
+                      const IconComponent = item.icon;
+                      return (
+                        <li key={item.id}>
+                          <button
+                            onClick={() => handleSectionChange(item.id)}
+                            className={`w-full flex items-center px-3 py-2 text-sm rounded-lg transition-all duration-200 ${
+                              activeSection === item.id
+                                ? "bg-red-50 text-red-700 border-r-2 border-red-500 shadow-sm"
+                                : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                            }`}
                           >
-                            {item.count}
-                          </span>
-                        </button>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </li>
-
-            {/* Rest of menu items (excluding Dashboard and POS) */}
-            {getMenuItems()
-              .slice(2)
-              .map((item) => (
-                <li key={item.id}>
-                  <button
-                    onClick={() => {
-                      handleSectionChange(item.id);
-                    }}
-                    className={`w-full flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-200 ${
-                      activeSection === item.id
-                        ? "bg-red-50 text-red-700 border-r-2 border-red-500 shadow-sm"
-                        : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                    }`}
-                  >
-                    <item.icon className="w-4 h-4 mr-3 flex-shrink-0" />
-                    <span className="flex-1 text-left">{item.label}</span>
-                    {item.badge && (
-                      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                        {item.badge}
-                      </span>
-                    )}
-                  </button>
-                </li>
-              ))}
+                            {IconComponent && (
+                              <IconComponent className="w-3 h-3 mr-2 flex-shrink-0" />
+                            )}
+                            <span className="flex-1 text-left text-xs">
+                              {item.label}
+                            </span>
+                            <span
+                              className={`text-xs font-medium px-2 py-0.5 rounded-full ${item.color} bg-opacity-10`}
+                            >
+                              {item.count}
+                            </span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+              </li>
+            )}
 
             {/* Deliveryman Dropdown - Admin Only */}
             {userRole === "admin" && (
